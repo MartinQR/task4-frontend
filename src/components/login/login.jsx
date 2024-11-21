@@ -2,29 +2,77 @@ import React, { useState, useEffect } from "react";
 import { Card, Input, Button } from "@nextui-org/react";
 import { EyeFilledIcon } from "../../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../../assets/EyeSlashFilledIcon";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
+  const [userForm, setUserForm] = useState();
+
+  const navigate = useNavigate();
+
+  // Handle Actions
+
+  function handleInputEmail(e) {
+    setUserForm({ ...userForm, email: e.target.value });
+  }
+
+  function handleInputPassword(e) {
+    setUserForm({ ...userForm, password: e.target.value });
+  }
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/users/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: userForm.email,
+          password: userForm.password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert("Successful login: " + JSON.stringify(data));
+        navigate("/table", { state: { email: userForm.email } });
+      } else {
+        alert("Error: " + data.message);
+      }
+    } catch (error) {
+      console.error("Request error:", error);
+      alert("Request error");
+    }
+  };
+  console.log("Login Form", userForm);
 
   return (
-    <div className="flex items-center justify-center h-screen flex-col">
-      <Card className="w-80 h-80 flex items-center my-5">
-        <p className="mt-5">Login</p>
+    <div className="flex items-center justify-center h-screen flex-col px-4 md:px-0">
+      <Card className="w-full max-w-xs md:max-w-md lg:max-w-lg h-auto flex items-center my-10 md:my-5 p-4 md:px-10 px-6">
+        <p className="mt-5 text-center text-lg sm:text-xl">Login</p>
 
-        <div className="my-5">
+        <div className="my-5 w-full">
           {/* Input Email */}
-          <div className="my-3">
+          <div className="my-3 w-full">
             <Input
+              value={userForm?.email}
+              onChange={handleInputEmail}
               isRequired
               size="sm"
               label="Email"
               variant="bordered"
-              placeholder="Enter your email"></Input>
+              placeholder="Enter your email"
+              className="w-full text-sm sm:text-base"
+            />
           </div>
-          {/* Input PassWord */}
-          <div className="my-3">
+          {/* Input Password */}
+          <div className="my-3 w-full">
             <Input
+              value={userForm?.password}
+              onChange={handleInputPassword}
               isRequired
               size="sm"
               label="Password"
@@ -44,18 +92,24 @@ export default function Login() {
                 </button>
               }
               type={isVisible ? "text" : "password"}
-              className="max-w-xs"
+              className="w-full text-sm sm:text-base"
             />
           </div>
         </div>
-        <Button className="w-40" size="md">
+        <Button className="w-full md:w-40" size="md" onClick={handleLogin}>
+          {/* <Link to="/table" className="w-full text-center text-sm sm:text-base"> */}
           Sign In
+          {/* </Link> */}
         </Button>
       </Card>
-      <p className="text-xs ">Don't have an account?
-        <span><a href="#"> Sign up</a></span>
-        
-         </p>
+      <p className="text-xs text-center mt-4 sm:text-sm">
+        Don't have an account?{" "}
+        <Link
+          to="/signup"
+          className="text-blue-500 hover:underline font-semibold">
+          Sign Up
+        </Link>
+      </p>
     </div>
   );
 }

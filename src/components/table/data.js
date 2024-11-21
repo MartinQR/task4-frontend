@@ -2,7 +2,7 @@ const columns = [
     {name: "NAME", uid: "name"},
     {name: "E-MAIL", uid: "role"},
     {name: "STATUS", uid: "status"},
-    {name: "LAST LOGIN", uid: "actions"},
+    {name: "LAST LOGIN", uid: "lastLogin"},
   ];
   
   const users = [
