@@ -16,7 +16,8 @@ import {
 } from "@nextui-org/react";
 import { columns, users } from "./data";
 import { Time } from "@internationalized/date";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const statusColorMap = {
   active: "success",
@@ -25,30 +26,160 @@ const statusColorMap = {
 };
 
 export default function TableToolbar() {
-  const [selectedKeys, setSelectedKeys] = useState();
+  const [selectedKeys, setSelectedKeys] = useState([]);
+  const [dataUsers, setDataUsers] = useState([]);
+  const [reload, setReload] = useState();
   const location = useLocation();
-  const{email}=location.state || {};
-  // const email = location.state?.email || "Guest";
+  const { email } = location.state || {};
+
+  const navigate = useNavigate();
+
+  // Get data from DataBase
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(
+        "https://task4-backend-ebgi.onrender.com/api/users/users"
+      );
+      if (!response.ok) {
+        throw new Error("Error fetching users");
+      }
+      const data = await response.json();
+      setDataUsers(sortByLastLogin(data));
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  // Function to sort by last_login date
+  function sortByLastLogin(data) {
+    return data.sort((a, b) => {
+      if (a.last_login === null && b.last_login === null) return 0;
+
+      if (a.last_login === null) return 1;
+      if (b.last_login === null) return -1;
+
+      return new Date(b.last_login) - new Date(a.last_login);
+    });
+  }
+
+  //Delete users
+  const deleteUsers = async (selectedUserIds) => {
+    try {
+      const response = await fetch(
+        "https://task4-backend-ebgi.onrender.com/api/users/delete",
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email, ids: selectedUserIds }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 403 || response.status === 404) {
+          toast.error(
+            "Your account is blocked or does not exist. Please log in again."
+          );
+          navigate("/");
+          return;
+        }
+        throw new Error("Error deleting users");
+      }
+
+      const result = await response.json();
+      toast.success("Successfully deleted users!", result);
+      fetchUsers();
+    } catch (error) {
+      toast.error("Error: " + error);
+    }
+  };
+
+  //Block Users
+
+  const blockUsers = async (selectedUserIds) => {
+    try {
+      const response = await fetch(
+        "https://task4-backend-ebgi.onrender.com/api/users/block",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email, ids: selectedUserIds }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 403 || response.status === 404) {
+          toast.error(
+            "Your account is blocked or does not exist. Please log in again."
+          );
+          navigate("/");
+          return;
+        }
+        throw new Error("Error blocking users");
+      }
+
+      const result = await response.json();
+      toast.success("Users successfully blocked!", result.message);
+
+      fetchUsers();
+    } catch (error) {
+      toast.error("Error blocking users: " + error);
+    }
+  };
+
+  // Unblock Users
+
+  const unblockUsers = async (selectedUserIds) => {
+    try {
+      const response = await fetch(
+        "https://task4-backend-ebgi.onrender.com/api/users/unblock",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: email, ids: selectedUserIds }),
+        }
+      );
+
+      if (!response.ok) {
+        if (response.status === 403 || response.status === 404) {
+          alert(
+            "Your account is blocked or does not exist. Please log in again."
+          );
+          navigate("/");
+          return;
+        }
+        throw new Error("Error blocking users");
+      }
+
+      const result = await response.json();
+      toast.success("Users successfully unlocked", result.message);
+
+      fetchUsers();
+    } catch (error) {
+      console.error("Error unlocked users:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, [reload]);
 
   const renderCell = useCallback((user, columnKey) => {
     const cellValue = user[columnKey];
 
     switch (columnKey) {
       case "name":
-        return (
-          <User
-            avatarProps={{ radius: "md", src: user.avatar, size: "sm" }}
-            description={user.email}
-            name={cellValue}>
-            {user.email}
-          </User>
-        );
-      case "role":
+        return <User name={user.first_name}></User>;
+      case "email":
         return (
           <div className="flex flex-col">
-            <p className="text-bold text-sm capitalize">{cellValue}</p>
             <p className="text-bold text-sm capitalize text-default-400">
-              {user.team}
+              {user?.email}
             </p>
           </div>
         );
@@ -56,20 +187,40 @@ export default function TableToolbar() {
         return (
           <Chip
             className="capitalize"
-            color={statusColorMap[user.status]}
+            color={statusColorMap[user?.status]}
             size="sm"
             variant="flat">
-            {cellValue}
+            {user?.status}
           </Chip>
+        );
+      case "createdAt":
+        return (
+          <div className="flex flex-row align-center justify-center">
+            <div className="flex items-center justify-center ">
+              <p>
+                {user?.created_at?.split("T")[0]}{" "}
+                {user?.created_at?.split("T")[1].substring(0, 5)}
+              </p>
+            </div>
+          </div>
         );
       case "lastLogin":
         return (
           <div className="flex flex-row align-center justify-center">
-            <div>
-              <TimeInput defaultValue={new Time(11, 45)} />
-            </div>
             <div className="flex items-center justify-center ">
-              <p>- 05/10/2024</p>
+              <div>
+                {user?.last_login == null ? (
+                  <Chip color="warning" variant="bordered">
+                    No Data
+                  </Chip>
+                ) : (
+                  <p>
+                    {user?.last_login?.split("T")[0]}{" "}
+                    {user?.last_login?.split("T")[1].substring(0, 5)}
+                  </p>
+                )}
+                {/* {user.last_login} */}
+              </div>
             </div>
           </div>
         );
@@ -79,15 +230,17 @@ export default function TableToolbar() {
     }
   }, []);
 
-  console.log("SelectedKeys", selectedKeys);
-  console.log(email);
+  const selectedUsers = Array.from(selectedKeys);
 
   return (
     <div className="flex items-center justify-center items-center h-screen flex-col  ">
       {/* <Card className="w-4/5 h-auto p-5 flex items-center"> */}
       {/* <h1 className="mt-3">User List</h1> */}
       <div className="flex space-x-2 w-full ml-4">
-        <Button className="bg-foreground text-background" size="sm">
+        <Button
+          className="bg-foreground text-background"
+          size="sm"
+          onClick={() => blockUsers(selectedUsers)}>
           <div className="w-3">
             <svg
               fill="white"
@@ -100,7 +253,10 @@ export default function TableToolbar() {
           </div>
           <div>Block</div>
         </Button>
-        <Button size="sm" variant="flat">
+        <Button
+          size="sm"
+          variant="flat"
+          onClick={() => unblockUsers(selectedUsers)}>
           <div className="w-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -111,7 +267,10 @@ export default function TableToolbar() {
             </svg>
           </div>
         </Button>
-        <Button size="sm" variant="flat">
+        <Button
+          size="sm"
+          variant="flat"
+          onClick={() => deleteUsers(Array.from(selectedKeys))}>
           <div className="w-3">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -125,7 +284,7 @@ export default function TableToolbar() {
       </div>
       <div className="flex my-2 ml-6 w-full">
         <span className="text-default-400 text-small">
-          Total {users.length} users - Bienvenido {email}
+          Total {dataUsers.length} users - Welcome {email}
         </span>
       </div>
       {/* Container for the Table */}
@@ -143,7 +302,7 @@ export default function TableToolbar() {
               </TableColumn>
             )}
           </TableHeader>
-          <TableBody items={users}>
+          <TableBody items={dataUsers}>
             {(item) => (
               <TableRow key={item.id}>
                 {(columnKey) => (

@@ -1,61 +1,38 @@
 const columns = [
-    {name: "NAME", uid: "name"},
-    {name: "E-MAIL", uid: "role"},
-    {name: "STATUS", uid: "status"},
-    {name: "LAST LOGIN", uid: "lastLogin"},
-  ];
-  
-  const users = [
-    {
-      id: 1,
-      name: "Tony Reichert",
-      role: "CEO",
-      team: "Management",
-      status: "active",
-      age: "29",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026024d",
-      email: "tony.reichert@example.com",
-    },
-    {
-      id: 2,
-      name: "Zoey Lang",
-      role: "Technical Lead",
-      team: "Development",
-      status: "paused",
-      age: "25",
-      avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d",
-      email: "zoey.lang@example.com",
-    },
-    {
-      id: 3,
-      name: "Jane Fisher",
-      role: "Senior Developer",
-      team: "Development",
-      status: "active",
-      age: "22",
-      avatar: "https://i.pravatar.cc/150?u=a04258114e29026702d",
-      email: "jane.fisher@example.com",
-    },
-    {
-      id: 4,
-      name: "William Howard",
-      role: "Community Manager",
-      team: "Marketing",
-      status: "vacation",
-      age: "28",
-      avatar: "https://i.pravatar.cc/150?u=a048581f4e29026701d",
-      email: "william.howard@example.com",
-    },
-    {
-      id: 5,
-      name: "Kristen Copper",
-      role: "Sales Manager",
-      team: "Sales",
-      status: "active",
-      age: "24",
-      avatar: "https://i.pravatar.cc/150?u=a092581d4ef9026700d",
-      email: "kristen.cooper@example.com",
-    },
-  ];
-  
-  export {columns, users};
+  { name: "NAME", uid: "name" },
+  { name: "E-MAIL", uid: "email" },
+  { name: "STATUS", uid: "status" },
+  { name: "CREATED AT", uid: "createdAt" },
+  { name: "LAST LOGIN", uid: "lastLogin" },
+];
+
+const users = [
+  {
+    id: 1,
+    first_name: "Nombre1",
+    last_name: "Apellido1",
+    status: "active",
+    email: "tony.reichert@example.com",
+    created_at: "2024-11-23T12:12:18.000Z",
+    last_login: 'Prueba'
+  },
+  {
+    id: 2,
+    first_name: "Nombre2",
+    last_name: "Apellido2",
+    status: "paused",
+    email: "zoey.lang@example.com",
+    created_at: "2024-11-23T12:12:18.000Z",
+  },
+  {
+    id: 3,
+    first_name: "Nombre3",
+    last_name: "Apellido3",
+
+    status: "active",
+    email: "jane.fisher@example.com",
+    created_at: "2024-11-23T12:12:18.000Z",
+  },
+];
+
+export { columns, users };

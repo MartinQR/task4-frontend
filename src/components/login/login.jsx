@@ -3,6 +3,7 @@ import { Card, Input, Button } from "@nextui-org/react";
 import { EyeFilledIcon } from "../../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../../assets/EyeSlashFilledIcon";
 import { Link, useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 export default function Login() {
   const [isVisible, setIsVisible] = useState(false);
@@ -13,6 +14,7 @@ export default function Login() {
 
   // Handle Actions
 
+ 
   function handleInputEmail(e) {
     setUserForm({ ...userForm, email: e.target.value });
   }
@@ -23,7 +25,8 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/login", {
+      // const response = await fetch("https://task4-backend-ebgi.onrender.com/api/users/login",
+      const response = await fetch("https://task4-backend-ebgi.onrender.com/api/users/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -37,17 +40,18 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Successful login: " + JSON.stringify(data));
+        console.log("Successful login: " + JSON.stringify(data));
+        toast.success('Successsfully Login!')
+
         navigate("/table", { state: { email: userForm.email } });
       } else {
-        alert("Error: " + data.message);
+        console.log("Error: " + data.message);
+        toast.error("Error: " + data.message)
       }
     } catch (error) {
       console.error("Request error:", error);
-      alert("Request error");
     }
   };
-  console.log("Login Form", userForm);
 
   return (
     <div className="flex items-center justify-center h-screen flex-col px-4 md:px-0">

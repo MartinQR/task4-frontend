@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Card, Input, Button, AvatarIcon, Avatar } from "@nextui-org/react";
 import { EyeFilledIcon } from "../../assets/EyeFilledIcon";
 import { EyeSlashFilledIcon } from "../../assets/EyeSlashFilledIcon";
+import toast from "react-hot-toast";
 
 export default function SignUp() {
   const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const [user, setUser] = useState();
+  const navigate = useNavigate();
 
   // Handle Functions
 
@@ -37,33 +39,40 @@ export default function SignUp() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/users/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          first_name: user.firstName,
-          last_name: user.lastName,
-          email: user.email,
-          password: user.password,
-        }),
-      });
+      // const response = await fetch("http://localhost:5000/api/users/register",
+
+      // 'https://task4-backend-ebgi.onrender.com/api/users/register'
+
+      const response = await fetch(
+        "https://task4-backend-ebgi.onrender.com/api/users/register",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            first_name: user.firstName,
+            last_name: user.lastName,
+            email: user.email,
+            password: user.password,
+          }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Successfully registered user: " + JSON.stringify(data));
+        console.log("Successfully registered user: " + JSON.stringify(data));
+        toast.success("Successfully registered user!");
+        navigate("/");
       } else {
-        alert("Error: " + data.message);
+        console.log("Error: " + data.message);
+        toast.error("Error: " + data.message);
       }
     } catch (error) {
       console.error("Request error:", error);
-      alert("Request error");
     }
   };
-
-  console.log("User", user);
 
   return (
     <div className="flex w-full items-center justify-center h-screen flex-col ">
