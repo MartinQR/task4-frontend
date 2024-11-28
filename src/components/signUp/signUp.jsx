@@ -17,7 +17,7 @@ export default function SignUp() {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
 
     if (regex.test(e.target.value)) {
-      setUser({ ...user, firstName: e.target.value });
+      setUser({ ...user, firstName: e.target.value.trim() });
     }
   }
 
@@ -25,12 +25,12 @@ export default function SignUp() {
     const regex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/;
 
     if (regex.test(e.target.value)) {
-      setUser({ ...user, lastName: e.target.value });
+      setUser({ ...user, lastName: e.target.value.trim() });
     }
   }
 
   function handleInputEmail(e) {
-    setUser({ ...user, email: e.target.value });
+    setUser({ ...user, email: e.target.value.trim() });
   }
 
   function handleInputPassword(e) {
@@ -40,9 +40,6 @@ export default function SignUp() {
   const handleSubmit = async () => {
     try {
       // const response = await fetch("http://localhost:5000/api/users/register",
-
-      // 'https://task4-backend-ebgi.onrender.com/api/users/register'
-
       const response = await fetch(
         "https://task4-backend-ebgi.onrender.com/api/users/register",
         {
@@ -73,7 +70,7 @@ export default function SignUp() {
       console.error("Request error:", error);
     }
   };
-
+  console.log("User", user);
   return (
     <div className="flex w-full items-center justify-center h-screen flex-col ">
       <Card className="w-64 sm:w-72 md:w-80 h-auto flex items-center my-5">

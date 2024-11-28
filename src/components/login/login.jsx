@@ -101,9 +101,7 @@ export default function Login() {
           </div>
         </div>
         <Button className="w-full md:w-40" size="md" onClick={handleLogin}>
-          {/* <Link to="/table" className="w-full text-center text-sm sm:text-base"> */}
           Sign In
-          {/* </Link> */}
         </Button>
       </Card>
       <p className="text-xs text-center mt-4 sm:text-sm">
