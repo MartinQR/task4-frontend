@@ -147,7 +147,7 @@ export default function TableToolbar() {
 
       if (!response.ok) {
         if (response.status === 403 || response.status === 404) {
-          alert(
+          toast.error(
             "Your account is blocked or does not exist. Please log in again."
           );
           navigate("/");
